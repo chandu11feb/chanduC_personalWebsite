@@ -1,13 +1,52 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta name="description" content="Portfolio of Chandu Chinthakyala, a Software Engineer specializing in AI, Machine Learning, and Computer Vision.">
+  <meta name="keywords" content="Chandu Chinthakyala, Software Engineer, Machine Learning, Computer Vision, Python, TensorFlow, AI, Harman">
 
   <title>Chandu Chinthakyala</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
 
   <!-- Favicons -->
   <link href="supporting_files/favicon.png" rel="icon">
@@ -18,6 +57,7 @@
 
   <!-- Vendor CSS Files -->
   <link href="supporting_files/js_docs/aos/aos.css" rel="stylesheet">
+
   <link href="supporting_files/js_docs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="supporting_files/js_docs/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="supporting_files/js_docs/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -38,13 +78,11 @@
     <div class="d-flex flex-column">
 
       <div class="profile">
-        <img src="supporting_files/Passport_square.jpg" alt="" class="img-fluid rounded-circle" >
+        <img src="supporting_files/Passport_square.jpg" alt="Chandu Chinthakyala profile picture" class="img-fluid rounded-circle">
         <h1 class="text-light"><a href="index.html">Chandu C</a></h1>
         <div class="social-links mt-3 text-center">
-            <a href="mailto:chandu11feb@gmail.com?body=Via Personal website" target="_blank"
-              class="twitter"><i class="bx bx-envelope"></i></a>
-            <a href="https://www.linkedin.com/in/chandu-chinthakyala-49b252196/" target="_blank" class="linkedin"><i
-                class="bx bxl-linkedin"></i></a>
+            <a href="mailto:chandu11feb@gmail.com?body=Via Personal website" target="_blank" class="twitter"><i class="bx bx-envelope"></i></a>
+            <a href="https://www.linkedin.com/in/chandu-chinthakyala-49b252196/" target="_blank" class="linkedin"><i class="bx bxl-linkedin"></i></a>
             <a href="https://wa.me/917093612117" target="_blank" class="instagram"><i class="bx bxl-whatsapp"></i></a>
             <a href="https://github.com/chandu11feb" target="_blank" class="facebook"><i class="bx bxl-github"></i></a>
             <a href="https://www.instagram.com/chandu__1120/" target="_blank" class="instagram"><i class="bx bxl-instagram"></i></a>
@@ -69,7 +107,7 @@
   <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
     <div class="hero-container" data-aos="fade-in">
       <h1>Chandu Chinthakyala</h1>
-      <p>I'm a <span class="typed" data-typed-items="Software Developer,Tech Enthusiast "></span></p>
+      <p>I'm a <span class="typed" data-typed-items="Software Engineer,Machine Learning Engineer,Computer Vision Specialist"></span></p>
     </div>
   </section><!-- End Hero -->
 
@@ -86,14 +124,13 @@
 
         <div class="row">
           <div class="col-lg-2" data-aos="fade-right">
-            <img src="supporting_files/Passport_pic1.jpg" class="img-fluid" alt="">
+            <img src="supporting_files/Passport_pic1.jpg" alt="Chandu Chinthakyala portrait" class="img-fluid">
           </div>
           <div class="col-lg-8 pt-4 pt-lg-0 content" data-aos="fade-left">
-            <h3>Software Developer &amp; Tech Enthusiast.</h3>
-            <p >
-              Hello I'm <strong>Chandu Chinthakyala</strong>, currently working as a Software Engineer in Harman Connected Services.
+            <h3>Software Engineer & Machine Learning Specialist</h3>
+            <p>
+              Hello, I'm <strong>Chandu Chinthakyala</strong>, a Software Engineer at Harman Connected Services, specializing in Artificial Intelligence, Machine Learning, and Computer Vision. I develop and optimize deep learning models for real-time applications, focusing on low-power environments and edge deployment.
             </p>
-            
           </div>
         </div>
 
@@ -109,28 +146,8 @@
           <div class="row">
             <div class="col-lg">
               <ul>
-                <li><i class="bi bi-chevron-right"></i> <strong>TechStack used in Workplace:</strong> <span>Python, Java, Groovy ,Rails Framework, Linux(Ubuntu), Git, Jira.</span></li>
-                <br>
-                <li><i class="bi bi-chevron-right"></i> <strong>Apart from Practical experience :</strong> <span>SQL, Django, HTML-CSS-JS, PowerBI, Artificial Intelligence</span></li>
-                  <br>
-                <li><i class="bi bi-chevron-right"></i><span>Being a Tech Enthusiast, I like learning new skills. </span></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="section-title">
-          <h2>Relevant Course Work</h2>
-          <div class="row">
-            <div class="col-lg">
-              <ul>
-                <li><i class="bi bi-chevron-right"></i> <strong>Computer Science:</strong> <span>Analysis and Design of
-                    Algorithms, Data Structures and Algorithms, Artificial Intelligence, Fundamentals of Data
-                    Science, ComputerNetworks, Operating Systems, Database Management, Software Engineering, Theory Of
-                    Computation, Computer
-                    Architecture, Digital Logic Design.</span></li>
-                    <br>
-                <li><i class="bi bi-chevron-right"></i> <strong>Mathematics:</strong> <span>Advance Calculus, Differential
-                    Equations, Discrete Mathematics, Linear Algebra, Probability and Statistics.</span></li>
+                <li><i class="bi bi-chevron-right"></i> <strong>Technical Skills:</strong> <span>Artificial Intelligence, Machine Learning, Deep Learning, Computer Vision, Large Language Models (LLM), Natural Language Processing (NLP), Python, Java, Google Cloud Platform, HTML, CSS, JavaScript, Groovy, SQL, Data Structures, PyTorch, TensorFlow, PowerBI, n8n</span></li>
+                <li><i class="bi bi-chevron-right"></i> <span>Passionate about leveraging cutting-edge AI and deep learning techniques to solve real-world challenges.</span></li>
               </ul>
             </div>
           </div>
@@ -145,38 +162,45 @@
 
         <div class="section-title">
           <h2>Experience</h2>
-
         </div>
 
         <div class="row">
           <div class="col-lg-6" data-aos="fade-up">
             <h3 class="resume-title">Summary</h3>
             <div class="resume-item pb-0">
-              <p><em>Have been working as a Software Engineer in Harman Connected Services.</em></p>
+              <p><em>Software Engineer at Harman Connected Services, specializing in AI, Machine Learning, and Computer Vision for real-time applications.</em></p>
             </div>
 
             <h3 class="resume-title">Professional Experience</h3>
-                        
             <div class="resume-item">
               <h4>Software Engineer</h4>
-              <h5>September. 2021 ‑ Present</h5>
+              <h5>September 2021 - Present</h5>
               <div data-aos="fade-right">
-            <img src="supporting_files/logo_harman.png" class="img-fluid" alt="" height=auto width=auto>
-          </div>
+                <img src="supporting_files/logo_harman.png" alt="Harman Connected Services logo" class="img-fluid">
+              </div>
               <p><em>Harman Connected Services | Bangalore, Karnataka</em></p>
               <ul>
-                <li>Joined as a Associate Engineer.</li>
-                <li>Engaged with a Intel windows platform validation project for validating Intel Microprocessors/Silicons in Raptor Lake Platform.</li>
-                <li>Engaged with a Windows Desktop Application named ‘Controlled Live Automation’ in Intel WWAN Project. Contributed almost 20% of the Application and 60+ Testcases responsible for Validating Intel 4G/5G Cellular Modems in Java and Python Languages.</li>
-                <li>After a year, Promoted as a Software Engineer</li>
-                <li>Automated 30+ Testcases in Intel Embedded Controller Validation Using Intel Rails Framework in Python Language.</li>
-                <li>Currently Developing Testcases for Intel Dynamic Tuning Technology which is Single Thermal Management Software Solution that works across multiple platforms and operating systems, Using          Intel Rails Framework in Python Language. </li>
-              </ul>            
+                <li><strong>Project: IIDT Display Super Resolution (AI-DSR)</strong></li>
+                <li>Developed and fine-tuned AI-based Super Resolution (AI-DSR) models using TensorFlow and Keras, enabling real-time upscaling of Full HD (1080p) to Ultra HD (4K) with high visual quality and minimal power consumption.</li>
+                <li>Designed lightweight CNN architectures for ultra-low-power environments, optimizing convolution layers and depth-to-space operations, and evaluated transformer-based modules for efficient spatial modeling.</li>
+                <li>Defined key image quality metrics (PSNR, SSIM, LPIPS) and developed an in-house visual comparison tool for quantitative and qualitative assessments.</li>
+                <li>Quantized CNN models using OpenVINO for INT8 inference, reducing memory and compute requirements while maintaining image quality.</li>
+                <li>Led data preprocessing and augmentation for LR-HR image datasets, sourcing over 10,000 images and exploring synthetic data generation using LLM-based NLP techniques.</li>
+                <li>Conducted experiments on multiple upscaling factors, fine-tuned models to reduce artifacts, and explored residual blocks, attention modules, and reinforcement learning for enhanced clarity.</li>
+                <li><strong>Project: Intel Intelligent Display Technologies (IIDT)</strong></li>
+                <li>Spearheaded development of machine learning and deep learning models for computer vision, focusing on object detection and scene understanding.</li>
+                <li>Leveraged in-house datasets for CNN-based object detection and image segmentation, achieving robust real-time performance.</li>
+                <li>Optimized models for edge deployment using TensorFlow, Keras, PyTorch, and scikit-learn, ensuring low-latency inference.</li>
+                <li>Researched advancements in AI, deep learning, computer vision, and NLP for annotation automation and synthetic data generation.</li>
+                <li>Implemented testing with IoU and mAP metrics, using Grad-CAM for explainable AI and ensuring model transparency.</li>
+                <li>Fostered team knowledge-sharing and created comprehensive documentation for code, APIs, and model pipelines.</li>
+                <li><strong>Project: Controlled Live Automation - Intel WWAN Project</strong></li>
+                <li>Contributed 20% to the development of the Controlled Live Automation Windows Desktop Application, focusing on backend logic for modem validation.</li>
+                <li>Developed and executed 60+ test cases for Intel 4G/5G Cellular Modems using Java and Python.</li>
+                <li>Collaborated with Java and Python teams for seamless integration, using Python, Java, Groovy, GitHub, and Jira.</li>
+              </ul>
             </div>
-
-            
           </div>
-
         </div>
 
       </div>
@@ -188,47 +212,39 @@
 
         <div class="section-title">
           <h2>Projects</h2>
-          <p>I have done several projects in software domain, below are finest of the them.</p>
-
-            <div class="row">
-              <div class="col-lg" data-aos="fade-up">
-                <br>
-            
-                <div class="resume-item">
-                  <h4>Designing of Chatbot for Python Language using Artificial Intelligence</h4>
-                  <p><em><strong>Tech Stack:</strong> Python, HTML/CSS, Flask, NLTK and NLP Packages</p>
-
-                </div>
-                <div class="resume-item">
-                  <h4>Retail Loss Prevention  – Classification</h4>
-                  <p><em><strong>Tech Stack:</strong> Python, Intel Distribution of OpenVINO Tool kit</p>
-                  <ul>
-                    <li>	This Artificial Intelligence project is capable of modifying, classifying and reporting the probability of 1000 different Retail products including different species of fruits, vegetables, toys, etc.</li>
-
-                  </ul>
-                </div>
-            
-              <!-- </div>
-              <div class="col-lg" data-aos="fade-up" data-aos-delay="100"> -->
-                <div class="resume-item">
-                  <h4>Industrial Worker Safety  – Object Detection</h4>
-                  <p><em><strong>Tech Stack:</strong> Python, Intel Distribution of OpenVINO Tool kit</p>
-                  <ul>
-                    <li>	This Artificial Intelligence project is capable of detecting different objects on images and videos such as helmet, safety glasses etc. </li>
-
-                  </ul>
-                </div>
-                
-              </div>
-            </div>
+          <p>Below are some of my key projects demonstrating expertise in AI, Machine Learning, and automation.</p>
         </div>
 
+        <div class="row">
+          <div class="col-lg" data-aos="fade-up">
+            <div class="resume-item">
+              <h4>Sequence Prediction System for Casino-Style Game</h4>
+              <p><em><strong>Tech Stack:</strong> Python, LSTM, scikit-learn</em></p>
+              <ul>
+                <li>Developed a sequence prediction system modeling historical win sequences as a multi-class classification problem.</li>
+                <li>Simulated over 2 million rounds of data, created one-hot encoded input-output pairs, and compared Linear Regression with a custom LSTM model to capture temporal patterns.</li>
+              </ul>
+            </div>
+            <div class="resume-item">
+              <h4>Python Chatbot for Programming Support</h4>
+              <p><em><strong>Tech Stack:</strong> Python, NLP, Flask</em></p>
+              <ul>
+                <li>Designed a chatbot using foundational NLP techniques and rule-based AI to assist beginner Python learners with syntax guidance, code examples, and debugging tips.</li>
+              </ul>
+            </div>
+            <div class="resume-item">
+              <h4>n8n AI Agentic Workflow for YouTube Automation</h4>
+              <p><em><strong>Tech Stack:</strong> n8n, Python, NLP</em></p>
+              <ul>
+                <li>Built an end-to-end workflow for automated YouTube video generation and upload, including NLP-based dynamic metadata generation, thumbnail automation, and scheduled publishing.</li>
+                <li>Deployed low-code AI pipelines for automation and API orchestration in production environments.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
 
       </div>
     </section><!-- End Portfolio Section -->
-
-    <!-- ======= Services Section ======= -->
-    
 
     <!-- ======= Contact Section ======= -->
     <section id="contact" class="contact">
@@ -240,44 +256,34 @@
         </div>
 
         <div class="row" data-aos="fade-in">
-
-
-          <div class="col-lg-12  align-items-center">
+          <div class="col-lg-12 align-items-center">
             <div class="info">
               <div class="social-links text-center">
-                <a href="mailto:chandu11feb@gmail.com?body=Via Personal website" target="_blank"
-              class="twitter"><i class="bx bx-envelope"></i></a>
-            <a href="https://www.linkedin.com/in/chandu-chinthakyala-49b252196/" target="_blank" class="linkedin"><i
-                class="bx bxl-linkedin"></i></a>
-            <a href="https://wa.me/917093612117" target="_blank" class="instagram"><i class="bx bxl-whatsapp"></i></a>
-            <a href="https://github.com/chandu11feb" target="_blank" class="facebook"><i class="bx bxl-github"></i></a>
-            <a href="https://www.instagram.com/chandu__1120/" target="_blank" class="instagram"><i class="bx bxl-instagram"></i></a>
-              <hr> 
+                <a href="mailto:chandu11feb@gmail.com?body=Via Personal website" target="_blank" class="twitter"><i class="bx bx-envelope"></i></a>
+                <a href="https://www.linkedin.com/in/chandu-chinthakyala-49b252196/" target="_blank" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+                <a href="https://wa.me/917093612117" target="_blank" class="instagram"><i class="bx bxl-whatsapp"></i></a>
+                <a href="https://github.com/chandu11feb" target="_blank" class="facebook"><i class="bx bxl-github"></i></a>
+                <a href="https://www.instagram.com/chandu__1120/" target="_blank" class="instagram"><i class="bx bxl-instagram"></i></a>
+                <hr>
+              </div>
+              <h4><a href="https://drive.google.com/file/d/14fIqJuPZL0W1Sv1ILzE37g-sJyOXS5Fu/view?usp=share_link" target="_blank">Resume Link</a></h4>
             </div>
-            <h4><a href="https://drive.google.com/file/d/14fIqJuPZL0W1Sv1ILzE37g-sJyOXS5Fu/view?usp=share_link" target="_blank">Resume Link</a></h4>
           </div>
-
-          </div>
-
         </div>
 
       </div>
-    </section>
-    <!-- End Contact Section -->
+    </section><!-- End Contact Section -->
 
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
   <footer id="footer">
     <div class="container">
-
       <div class="credits">
-
         <a>Just Do It</a>
       </div>
     </div>
-  </footer>
-  <!-- End  Footer -->
+  </footer><!-- End Footer -->
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
