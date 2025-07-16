@@ -102,7 +102,6 @@
   on('click', '.scrollto', function(e) {
     if (select(this.hash)) {
       e.preventDefault();
-
       let body = select('body');
       if (body.classList.contains('mobile-nav-active')) {
         body.classList.remove('mobile-nav-active');
@@ -130,15 +129,24 @@
    */
   const typed = select('.typed');
   if (typed) {
-    let typed_strings = typed.getAttribute('data-typed-items');
-    typed_strings = typed_strings.split(',');
-    new Typed('.typed', {
-      strings: typed_strings,
-      loop: true,
-      typeSpeed: 80,
-      backSpeed: 40,
-      backDelay: 2500
-    });
+    try {
+      let typed_strings = typed.getAttribute('data-typed-items');
+      typed_strings = typed_strings.split(',');
+      if (typeof Typed !== 'undefined') {
+        new Typed('.typed', {
+          strings: typed_strings,
+          loop: true,
+          typeSpeed: 80,
+          backSpeed: 40,
+          backDelay: 2500
+        });
+      } else {
+        console.warn('Typed.js not loaded. Check path: supporting_files/js_docs/typed.js/typed.min.js');
+        typed.textContent = typed_strings[0]; // Fallback to first string
+      }
+    } catch (e) {
+      console.error('Error initializing Typed.js:', e);
+    }
   }
 
   /**
@@ -164,93 +172,142 @@
    * Portfolio isotope and filter
    */
   window.addEventListener('load', () => {
-    let portfolioContainer = select('.resume.section-bg');
+    let portfolioContainer = select('.portfolio.section-bg');
     if (portfolioContainer) {
-      let portfolioIsotope = new Isotope(portfolioContainer, {
-        itemSelector: '.resume-item'
-      });
+      try {
+        if (typeof Isotope !== 'undefined') {
+          let portfolioIsotope = new Isotope(portfolioContainer, {
+            itemSelector: '.resume-item'
+          });
 
-      let portfolioFilters = select('#portfolio-flters li', true);
+          let portfolioFilters = select('#portfolio-flters li', true);
+          if (portfolioFilters.length > 0) {
+            on('click', '#portfolio-flters li', function(e) {
+              e.preventDefault();
+              portfolioFilters.forEach(function(el) {
+                el.classList.remove('filter-active');
+              });
+              this.classList.add('filter-active');
 
-      on('click', '#portfolio-flters li', function(e) {
-        e.preventDefault();
-        portfolioFilters.forEach(function(el) {
-          el.classList.remove('filter-active');
-        });
-        this.classList.add('filter-active');
-
-        portfolioIsotope.arrange({
-          filter: this.getAttribute('data-filter')
-        });
-        portfolioIsotope.on('arrangeComplete', function() {
-          AOS.refresh();
-        });
-      }, true);
-    }
-  });
-
-  /**
-   * Initiate portfolio lightbox
-   */
-  const portfolioLightbox = GLhecies({
-    selector: '.portfolio-lightbox'
-  });
-
-  /**
-   * Portfolio details slider
-   */
-  new Swiper('.portfolio-details-slider', {
-    speed: 400,
-    loop: true,
-    autoplay: {
-      delay: 5000,
-      disableOnInteraction: false
-    },
-    pagination: {
-      el: '.swiper-pagination',
-      type: 'bullets',
-      clickable: true
-    }
-  });
-
-  /**
-   * Testimonials slider
-   */
-  new Swiper('.testimonials-slider', {
-    speed: 600,
-    loop: true,
-    autoplay: {
-      delay: 5000,
-      disableOnInteraction: false
-    },
-    slidesPerView: 'auto',
-    pagination: {
-      el: '.swiper-pagination',
-      type: 'bullets',
-      clickable: true
-    },
-    breakpoints: {
-      320: {
-        slidesPerView: 1,
-        spaceBetween: 20
-      },
-      1200: {
-        slidesPerView: 3,
-        spaceBetween: 20
+              portfolioIsotope.arrange({
+                filter: this.getAttribute('data-filter')
+              });
+              portfolioIsotope.on('arrangeComplete', function() {
+                AOS.refresh();
+              });
+            }, true);
+          } else {
+            console.warn('Portfolio filters not found. Check #portfolio-flters in index.html');
+          }
+        } else {
+          console.warn('Isotope not loaded. Check path: supporting_files/js_docs/isotope-layout/isotope.pkgd.min.js');
+        }
+      } catch (e) {
+        console.error('Error initializing Isotope:', e);
       }
     }
   });
 
   /**
+   * Initiate portfolio lightbox (commented out as unused)
+   */
+  /*
+  try {
+    if (typeof GLightbox !== 'undefined') {
+      const portfolioLightbox = GLightbox({
+        selector: '.portfolio-lightbox'
+      });
+    } else {
+      console.warn('GLightbox not loaded. Check path: supporting_files/js_docs/glightbox/js/glightbox.min.js');
+    }
+  } catch (e) {
+    console.error('Error initializing GLightbox:', e);
+  }
+  */
+
+  /**
+   * Portfolio details slider (commented out as unused)
+   */
+  /*
+  try {
+    if (typeof Swiper !== 'undefined') {
+      new Swiper('.portfolio-details-slider', {
+        speed: 400,
+        loop: true,
+        autoplay: {
+          delay: 5000,
+          disableOnInteraction: false
+        },
+        pagination: {
+          el: '.swiper-pagination',
+          type: 'bullets',
+          clickable: true
+        }
+      });
+    } else {
+      console.warn('Swiper not loaded. Check path: supporting_files/js_docs/swiper/swiper-bundle.min.js');
+    }
+  } catch (e) {
+    console.error('Error initializing Swiper:', e);
+  }
+  */
+
+  /**
+   * Testimonials slider (commented out as unused)
+   */
+  /*
+  try {
+    if (typeof Swiper !== 'undefined') {
+      new Swiper('.testimonials-slider', {
+        speed: 600,
+        loop: true,
+        autoplay: {
+          delay: 5000,
+          disableOnInteraction: false
+        },
+        slidesPerView: 'auto',
+        pagination: {
+          el: '.swiper-pagination',
+          type: 'bullets',
+          clickable: true
+        },
+        breakpoints: {
+          320: {
+            slidesPerView: 1,
+            spaceBetween: 20
+          },
+          1200: {
+            slidesPerView: 3,
+            spaceBetween: 20
+          }
+        }
+      });
+    } else {
+      console.warn('Swiper not loaded. Check path: supporting_files/js_docs/swiper/swiper-bundle.min.js');
+    }
+  } catch (e) {
+    console.error('Error initializing Swiper:', e);
+  }
+  */
+
+  /**
    * Animation on scroll
    */
   window.addEventListener('load', () => {
-    AOS.init({
-      duration: 1000,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
-    });
+    try {
+      if (typeof AOS !== 'undefined') {
+        AOS.init({
+          duration: 1000,
+          easing: 'ease-in-out',
+          once: true,
+          mirror: false
+        });
+      } else {
+        console.warn('AOS not loaded. Check path: supporting_files/js_docs/aos/aos.js');
+      }
+    } catch (e) {
+      console.error('Error initializing AOS:', e);
+    }
   });
 
 })();
